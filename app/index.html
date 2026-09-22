@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A clear view of current project health, ownership, activity, and priority.">
+  <title>Project Pulse</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="dashboard header-content">
+      <div class="brand-mark" aria-hidden="true">PP</div>
+      <div>
+        <p class="eyebrow">Team operations</p>
+        <p class="brand-name">Project Pulse</p>
+      </div>
+      <p class="header-date">A shared view of what is moving forward</p>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Portfolio overview</p>
+        <h1 id="page-title">Keep every project in view.</h1>
+        <p class="intro-copy">A focused snapshot of project health, ownership, and the latest team momentum.</p>
+      </div>
+      <div class="pulse-summary" aria-label="Dashboard status">
+        <span class="pulse-dot" aria-hidden="true"></span>
+        <span>Live project pulse</span>
+      </div>
+    </section>
+
+    <section class="project-section" aria-labelledby="projects-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Current work</p>
+          <h2 id="projects-heading">Projects</h2>
+        </div>
+        <p id="project-count" class="section-meta">Loading projects...</p>
+      </div>
+      <div id="loading-state" class="loading-state" role="status" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        Loading project updates...
+      </div>
+      <div id="error-state" class="error-state" role="alert" aria-live="assertive" hidden></div>
+      <div id="project-list" class="project-grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="dashboard">Project Pulse &middot; Designed for clear team conversations</div>
+  </footer>
+
+  <script>
+    (() => {
+      const projectList = document.querySelector('#project-list');
+      const loadingState = document.querySelector('#loading-state');
+      const errorState = document.querySelector('#error-state');
+      const projectCount = document.querySelector('#project-count');
+
+      const requiredFields = ['name', 'owner', 'status', 'recentActivity', 'priority'];
+      const escapeHtml = (value) => String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+      const classToken = (value) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
+
+      function showError(message) {
+        loadingState.hidden = true;
+        errorState.hidden = false;
+        errorState.innerHTML = '<strong>We couldn\'t load the project pulse.</strong><span>' + escapeHtml(message) + '</span>';
+        projectCount.textContent = 'Updates unavailable';
+      }
+
+      function renderProjects(projects) {
+        loadingState.hidden = true;
+        errorState.hidden = true;
+        projectCount.textContent = projects.length + (projects.length === 1 ? ' project' : ' projects');
+        projectList.innerHTML = projects.map((project) => {
+          const statusClass = classToken(project.status);
+          const priorityClass = classToken(project.priority);
+          return '<article class="project-card">' +
+            '<div class="project-card__topline"><span class="status-badge status-badge--' + statusClass + '">' + escapeHtml(project.status) + '</span><span class="project-card__index" aria-hidden="true">' + String(projects.indexOf(project) + 1).padStart(2, '0') + '</span></div>' +
+            '<h2 class="project-card__title">' + escapeHtml(project.name) + '</h2>' +
+            '<p class="project-card__owner"><span class="label">Owner</span>' + escapeHtml(project.owner) + '</p>' +
+            '<div class="project-card__activity"><span class="label">Recent activity</span><p>' + escapeHtml(project.recentActivity) + '</p></div>' +
+            '<div class="project-card__footer"><span class="label">Priority</span><span class="priority-badge priority-badge--' + priorityClass + '">' + escapeHtml(project.priority) + '</span></div>' +
+          '</article>';
+        }).join('');
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch('./project-data.json');
+          if (!response.ok) throw new Error('The project data returned an HTTP ' + response.status + ' response.');
+          const data = await response.json();
+          if (!data || !Array.isArray(data.projects)) throw new Error('The data must contain a top-level projects array.');
+          const invalidProject = data.projects.find((project) => !project || requiredFields.some((field) => typeof project[field] !== 'string' || !project[field].trim()));
+          if (invalidProject) throw new Error('One or more project records are missing required information.');
+          renderProjects(data.projects);
+        } catch (error) {
+          showError(error instanceof Error ? error.message : 'Please try again later.');
+        }
+      }
+
+      loadProjects();
+    })();
+  </script>
+</body>
+</html>

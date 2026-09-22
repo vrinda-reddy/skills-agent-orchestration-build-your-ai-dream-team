@@ -1,0 +1,46 @@
+{
+  "projects": [
+    {
+      "name": "Customer Onboarding Refresh",
+      "owner": "Maya Chen",
+      "status": "Active",
+      "recentActivity": "New welcome flow is in review with the support team.",
+      "priority": "High"
+    },
+    {
+      "name": "Q4 Analytics Foundation",
+      "owner": "Jordan Ellis",
+      "status": "At Risk",
+      "recentActivity": "Data mapping is awaiting confirmation from two source teams.",
+      "priority": "High"
+    },
+    {
+      "name": "Mobile App Accessibility",
+      "owner": "Priya Nair",
+      "status": "Active",
+      "recentActivity": "VoiceOver testing completed for the account and billing screens.",
+      "priority": "Medium"
+    },
+    {
+      "name": "Partner API Migration",
+      "owner": "Luis Romero",
+      "status": "Blocked",
+      "recentActivity": "The external sandbox remains unavailable for integration testing.",
+      "priority": "High"
+    },
+    {
+      "name": "Internal Design System",
+      "owner": "Samira Okafor",
+      "status": "Completed",
+      "recentActivity": "Component documentation and adoption guide are now published.",
+      "priority": "Low"
+    },
+    {
+      "name": "Support Knowledge Base",
+      "owner": "Theo Martin",
+      "status": "Active",
+      "recentActivity": "The team added 18 troubleshooting articles from recent tickets.",
+      "priority": "Medium"
+    }
+  ]
+}
